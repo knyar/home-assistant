@@ -11,8 +11,11 @@ from homeassistant.const import (
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     DEGREE,
     DEVICE_CLASS_POWER,
+    DEVICE_CLASS_TEMPERATURE,
     ENERGY_KILO_WATT_HOUR,
     EVENT_STATE_CHANGED,
+    TEMP_CELSIUS,
+    TEMP_FAHRENHEIT,
 )
 from homeassistant.core import split_entity_id
 from homeassistant.setup import async_setup_component
@@ -87,6 +90,25 @@ async def prometheus_client(hass, hass_client):
     sensor5.hass = hass
     sensor5.entity_id = "sensor.sps30_pm_1um_weight_concentration"
     await sensor5.async_update_ha_state()
+
+    sensor6 = DemoSensor(
+        None, "Temperature in Celsius", 20, DEVICE_CLASS_TEMPERATURE, TEMP_CELSIUS, None
+    )
+    sensor6.hass = hass
+    sensor6.entity_id = "sensor.temp_in_c"
+    await sensor6.async_update_ha_state()
+
+    sensor7 = DemoSensor(
+        None,
+        "Temperature in Fahrenheit",
+        50,
+        DEVICE_CLASS_TEMPERATURE,
+        TEMP_FAHRENHEIT,
+        None,
+    )
+    sensor7.hass = hass
+    sensor7.entity_id = "sensor.temp_in_f"
+    await sensor7.async_update_ha_state()
 
     return await hass_client()
 
@@ -198,6 +220,18 @@ async def test_view(hass, hass_client):
         'sensor_unit_u0xb5g_per_mu0xb3{domain="sensor",'
         'entity="sensor.sps30_pm_1um_weight_concentration",'
         'friendly_name="SPS30 PM <1µm Weight concentration"} 3.7069' in body
+    )
+
+    assert (
+        'temperature_c{domain="sensor",'
+        'entity="sensor.temp_in_c",'
+        'friendly_name="Temperature in Celsius"} 20.0' in body
+    )
+
+    assert (
+        'temperature_c{domain="sensor",'
+        'entity="sensor.temp_in_f",'
+        'friendly_name="Temperature in Fahrenheit"} 10.0' in body
     )
 
 
